@@ -1,0 +1,1 @@
+# yandex-workshop-registration-service
