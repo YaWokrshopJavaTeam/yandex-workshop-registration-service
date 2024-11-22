@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  registration-service:
+    build: .
+    image: ya-workshop-registration-service
+    container_name: registration-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - registration-service-database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://registration-service-database:5432/registrationservicedb
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+
+  registration-service-database:
+    image: postgres:14-alpine
+    container_name: registration-service-database
+    environment:
+      - POSTGRES_DB=registrationservicedb
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
