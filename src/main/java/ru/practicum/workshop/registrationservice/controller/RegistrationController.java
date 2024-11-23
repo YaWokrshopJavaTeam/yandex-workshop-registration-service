@@ -42,7 +42,8 @@ public class RegistrationController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRegistration(@RequestBody @Valid AuthRegistrationDto authRegistrationDto) {
-        log.info("Request: delete registration data, authRegistrationDto={}", authRegistrationDto);
+        log.info("Request: delete registration, authRegistrationDto={}", authRegistrationDto);
+        registrationService.deleteRegistration(authRegistrationDto);
     }
 
     @GetMapping("/{registrationId}")
@@ -54,7 +55,7 @@ public class RegistrationController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<PublicRegistrationDto> getRegistrations(@PathParam("eventId") Long eventId, Pageable pageable) {
+    public List<PublicRegistrationDto> getRegistrations(@RequestParam("eventId") Long eventId, Pageable pageable) {
         log.info("Request: get all registrations for event id={}, page={}, size={}",
                 eventId, pageable.getPageNumber(), pageable.getPageSize());
         return registrationService.getRegistrations(eventId, pageable);

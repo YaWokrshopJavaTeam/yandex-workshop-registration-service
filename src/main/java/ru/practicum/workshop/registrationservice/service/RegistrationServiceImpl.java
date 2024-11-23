@@ -75,7 +75,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         registrationRepository.deleteById(authRegistrationDto.getId());
 
-        log.info("Registration with id={}} was deleted.", authRegistrationDto.getId());
+        log.info("Registration with id={} was deleted.", authRegistrationDto.getId());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 () -> new EntityNotFoundException(
                         String.format("Registration with id=%d not found.", registrationId)));
 
-        log.info("Sent registration with id={}.}", registrationId);
+        log.info("Sent registration with id={}.", registrationId);
 
         return registrationMapper.toPublicRegistrationDto(registration);
     }
