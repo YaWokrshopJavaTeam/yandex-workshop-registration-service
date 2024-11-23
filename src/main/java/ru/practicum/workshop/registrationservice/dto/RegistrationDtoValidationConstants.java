@@ -6,6 +6,8 @@ public class RegistrationDtoValidationConstants {
 
     public static final String PASSWORD_NOT_NULL_ERROR_MESSAGE = "Registration password must be non-null.";
 
+    public static final String NAME_PATTERN_REGEXP = "^\\s*\\S.*";
+    public static final String NAME_PATTERN_ERROR_MESSAGE = "User name must be non-blank";
     public static final String NAME_NOT_BLANK_ERROR_MESSAGE = "User name must be non-blank.";
     public static final int NAME_SIZE_MIN = 3;
     public static final int NAME_SIZE_MAX = 64;
