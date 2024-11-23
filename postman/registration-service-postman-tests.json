@@ -1,0 +1,1868 @@
+{
+	"info": {
+		"_postman_id": "0144725e-bdbe-4eab-9a67-f4a4d3d20a08",
+		"name": "Registration Service Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24536323"
+	},
+	"item": [
+		{
+			"name": "Create Registration",
+			"item": [
+				{
+					"name": "Add registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains required fields\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.expect(jsonData).to.have.property(\"password\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration without name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration with blank name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: \"    \",\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration with too short name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: \"us\",\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration without email",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration with invalid email",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}.yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration without phone",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration with invalid phone",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+7999number\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration without eventId",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\"\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Registration Data",
+			"item": [
+				{
+					"name": "Update registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password,\r",
+									"                name: \"Updated\" + newRegistrationDto.name,\r",
+									"                email: \"update\" + newRegistrationDto.email,\r",
+									"                phone: newRegistrationDto.phone + \"0\"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"            pm.variables.set(\"currentEventId\", currentEventId);\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let updateRegistrationDto = JSON.parse(pm.variables.get(\"updateRegistrationDto\"));\r",
+									"let currentEventId = pm.variables.get(\"currentEventId\");\r",
+									"\r",
+									"pm.test(\"Response fields are all correct\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"name\", updateRegistrationDto.name);\r",
+									"    pm.expect(jsonData).to.have.property(\"email\", updateRegistrationDto.email);\r",
+									"    pm.expect(jsonData).to.have.property(\"phone\", updateRegistrationDto.phone);\r",
+									"    pm.expect(jsonData).to.have.property(\"eventId\", currentEventId);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update not exists registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id + 1,\r",
+									"                password: res.json().password,\r",
+									"                name: \"Updated\" + newRegistrationDto.name,\r",
+									"                email: \"update\" + newRegistrationDto.email,\r",
+									"                phone: newRegistrationDto.phone + \"0\"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update registration with invalid password",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password + \"0\",\r",
+									"                name: \"Updated\" + newRegistrationDto.name,\r",
+									"                email: \"update\" + newRegistrationDto.email,\r",
+									"                phone: newRegistrationDto.phone + \"0\"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update registration with blank name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password,\r",
+									"                name: \"    \"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update registration with too short name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password,\r",
+									"                name: \"us\"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update registration with invalid email",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password,\r",
+									"                email: `user${currentUserId}.ya.ru`\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update registration with invalid phone",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            const updateRegistrationDto = {\r",
+									"                id: res.json().id,\r",
+									"                password: res.json().password,\r",
+									"                phone: \"+7999number\"\r",
+									"            };\r",
+									"            pm.variables.set(\"updateRegistrationDto\", JSON.stringify(updateRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{updateRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete Registration",
+			"item": [
+				{
+					"name": "Delete registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            pm.variables.set(\"authRegistrationDto\", JSON.stringify(res.json()));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"let registrationId = JSON.parse(pm.variables.get(\"authRegistrationDto\")).id;\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations/') + registrationId,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        }\r",
+									"    }, function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while getting registration:\", err);\r",
+									"        } else {\r",
+									"            pm.test(\"Registration deleted\", function() {\r",
+									"                pm.expect(res.code).to.eql(400);\r",
+									"            });\r",
+									"        }\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{authRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete not exists registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const authRegistrationDto = {\r",
+									"    id: `${currentUserId + 1}`,\r",
+									"    password: \"1234\"\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"authRegistrationDto\", JSON.stringify(authRegistrationDto));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{authRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete registration with incorrect password",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            let authRegistrationDto = res.json();\r",
+									"            authRegistrationDto.password = authRegistrationDto.password + \"0\";\r",
+									"            pm.variables.set(\"authRegistrationDto\", JSON.stringify(authRegistrationDto));\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{authRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Registration",
+			"item": [
+				{
+					"name": "Get registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"            pm.variables.set(\"registrationId\", res.json().id);\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let newRegistrationDto = JSON.parse(pm.variables.get(\"newRegistrationDto\"));\r",
+									"\r",
+									"pm.test(\"Response fields are all correct\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"name\", newRegistrationDto.name);\r",
+									"    pm.expect(jsonData).to.have.property(\"email\", newRegistrationDto.email);\r",
+									"    pm.expect(jsonData).to.have.property(\"phone\", newRegistrationDto.phone);\r",
+									"    pm.expect(jsonData).to.have.property(\"eventId\", newRegistrationDto.eventId);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registrations/{{registrationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"{{registrationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get not exists registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        } else {\r",
+									"            pm.variables.set(\"registrationId\", res.json().id + 1);\r",
+									"        }\r",
+									"    }\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registrations/{{registrationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"{{registrationId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Registrations",
+			"item": [
+				{
+					"name": "Get registrations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"pm.variables.set(\"eventId\", currentEventId);\r",
+									"\r",
+									"const newRegistrationsDtos = [];\r",
+									"\r",
+									"// Цикл для создания трех объектов DTO\r",
+									"for (let i = 0; i < 3; i++) {\r",
+									"    const newRegistrationDto = {\r",
+									"        name: `User${currentUserId}`,\r",
+									"        email: `user${currentUserId}@yandex.ru`,\r",
+									"        phone: \"+79991234567\",\r",
+									"        eventId: currentEventId\r",
+									"    };\r",
+									"\r",
+									"    newRegistrationsDtos.push(newRegistrationDto);\r",
+									"\r",
+									"    currentUserId++;\r",
+									"}\r",
+									"\r",
+									"newRegistrationsDtos.forEach(newRegistrationDto => {\r",
+									"    pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        }\r",
+									"    }\r",
+									")\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains 2 elements\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"    pm.expect(jsonData).to.have.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"let eventId = parseInt(pm.variables.get(\"eventId\"));\r",
+									"\r",
+									"pm.test(\"Registrations belongs to right event\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    jsonData.forEach((item, index) => {\r",
+									"        pm.expect(item).to.have.property(\"eventId\", eventId);\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registrations?eventId={{eventId}}&page=0&size=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get registrations without event id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationsDtos = [];\r",
+									"\r",
+									"// Цикл для создания трех объектов DTO\r",
+									"for (let i = 0; i < 3; i++) {\r",
+									"    const newRegistrationDto = {\r",
+									"        name: `User${currentUserId}`,\r",
+									"        email: `user${currentUserId}@yandex.ru`,\r",
+									"        phone: \"+79991234567\",\r",
+									"        eventId: currentEventId\r",
+									"    };\r",
+									"\r",
+									"    newRegistrationsDtos.push(newRegistrationDto);\r",
+									"\r",
+									"    currentUserId++;\r",
+									"}\r",
+									"\r",
+									"newRegistrationsDtos.forEach(newRegistrationDto => {\r",
+									"    pm.sendRequest({\r",
+									"        url: pm.variables.replaceIn('{{baseUrl}}/registrations'),\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json'\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(newRegistrationDto)\r",
+									"        }\r",
+									"    },\r",
+									"    function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.log(\"Error while adding registration:\", err);\r",
+									"        }\r",
+									"    }\r",
+									")\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registrations?page=0&size=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "nextUserId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "nextEventId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
