@@ -1,6 +1,7 @@
 package ru.practicum.workshop.registrationservice.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,14 +49,14 @@ public class RegistrationController {
 
     @GetMapping("/{registrationId}")
     @ResponseStatus(HttpStatus.OK)
-    public PublicRegistrationDto getRegistration(@PathVariable Long registrationId) {
+    public PublicRegistrationDto getRegistration(@PathVariable @Positive Long registrationId) {
         log.info("Request: get registration by id={}", registrationId);
         return registrationService.getRegistration(registrationId);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<PublicRegistrationDto> getRegistrations(@RequestParam("eventId") Long eventId, Pageable pageable) {
+    public List<PublicRegistrationDto> getRegistrations(@RequestParam("eventId") @Positive Long eventId, Pageable pageable) {
         log.info("Request: get all registrations for event id={}, page={}, size={}",
                 eventId, pageable.getPageNumber(), pageable.getPageSize());
         return registrationService.getRegistrations(eventId, pageable);

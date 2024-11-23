@@ -1,6 +1,7 @@
 package ru.practicum.workshop.registrationservice.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import static ru.practicum.workshop.registrationservice.dto.RegistrationDtoValid
 public class AuthRegistrationDto {
 
     @NotNull(message = ID_NOT_NULL_ERROR_MESSAGE)
+    @Positive
     private Long id;
 
     @NotNull(message = PASSWORD_NOT_NULL_ERROR_MESSAGE)

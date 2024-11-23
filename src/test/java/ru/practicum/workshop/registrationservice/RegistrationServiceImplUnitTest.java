@@ -98,6 +98,90 @@ public class RegistrationServiceImplUnitTest {
     }
 
     @Test
+    public void updateRegistrationData_withNameOnly_thenUpdate() {
+        UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
+                .id(1L)
+                .password("1234")
+                .name("Yuri").build();
+
+        Registration registration = Registration.builder()
+                .id(1L)
+                .password("1234")
+                .name("Yury")
+                .email("yury@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        PublicRegistrationDto expectedPublicRegistrationDto = PublicRegistrationDto.builder()
+                .name("Yuri")
+                .email("yury@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        when(registrationRepository.findById(any(Long.class))).thenReturn(Optional.of(registration));
+
+        PublicRegistrationDto actualPublicRegistrationDto = registrationService.updateRegistrationData(updateRegistrationDto);
+
+        assertThat(actualPublicRegistrationDto, equalTo(expectedPublicRegistrationDto));
+    }
+
+    @Test
+    public void updateRegistrationData_withEmailOnly_thenUpdate() {
+        UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
+                .id(1L)
+                .password("1234")
+                .email("yuri@yandex.ru").build();
+
+        Registration registration = Registration.builder()
+                .id(1L)
+                .password("1234")
+                .name("Yury")
+                .email("yury@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        PublicRegistrationDto expectedPublicRegistrationDto = PublicRegistrationDto.builder()
+                .name("Yury")
+                .email("yuri@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        when(registrationRepository.findById(any(Long.class))).thenReturn(Optional.of(registration));
+
+        PublicRegistrationDto actualPublicRegistrationDto = registrationService.updateRegistrationData(updateRegistrationDto);
+
+        assertThat(actualPublicRegistrationDto, equalTo(expectedPublicRegistrationDto));
+    }
+
+    @Test
+    public void updateRegistrationData_withPhoneOnly_thenUpdate() {
+        UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
+                .id(1L)
+                .password("1234")
+                .phone("+79991234560").build();
+
+        Registration registration = Registration.builder()
+                .id(1L)
+                .password("1234")
+                .name("Yury")
+                .email("yury@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        PublicRegistrationDto expectedPublicRegistrationDto = PublicRegistrationDto.builder()
+                .name("Yury")
+                .email("yury@yandex.ru")
+                .phone("+79991234560")
+                .eventId(1L).build();
+
+        when(registrationRepository.findById(any(Long.class))).thenReturn(Optional.of(registration));
+
+        PublicRegistrationDto actualPublicRegistrationDto = registrationService.updateRegistrationData(updateRegistrationDto);
+
+        assertThat(actualPublicRegistrationDto, equalTo(expectedPublicRegistrationDto));
+    }
+
+    @Test
     public void updateRegistrationData_whenRegistrationNotExists_thenThrowException() {
         UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
                 .id(1L)

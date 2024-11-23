@@ -18,6 +18,7 @@ import ru.practicum.workshop.registrationservice.repository.RegistrationReposito
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -44,9 +45,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public PublicRegistrationDto updateRegistrationData(UpdateRegistrationDto updateRegistrationDto) {
-        Registration registration = registrationRepository.findById(updateRegistrationDto.getId()).orElseThrow(
-                () -> new EntityNotFoundException(
-                        String.format("Registration with id=%d not found.", updateRegistrationDto.getId())));
+        Registration registration = getRegistrationInternal(updateRegistrationDto.getId());
 
         if (!registration.getPassword().equals(updateRegistrationDto.getPassword())) {
             throw new AuthenticationException(
@@ -64,9 +63,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public void deleteRegistration(AuthRegistrationDto authRegistrationDto) {
-        Registration registration = registrationRepository.findById(authRegistrationDto.getId()).orElseThrow(
-                () -> new EntityNotFoundException(
-                        String.format("Registration with id=%d not found.", authRegistrationDto.getId())));
+        Registration registration = getRegistrationInternal(authRegistrationDto.getId());
 
         if (!registration.getPassword().equals(authRegistrationDto.getPassword())) {
             throw new AuthenticationException(
@@ -80,9 +77,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public PublicRegistrationDto getRegistration(Long registrationId) {
-        Registration registration = registrationRepository.findById(registrationId).orElseThrow(
-                () -> new EntityNotFoundException(
-                        String.format("Registration with id=%d not found.", registrationId)));
+        Registration registration = getRegistrationInternal(registrationId);
 
         log.info("Sent registration with id={}.", registrationId);
 
@@ -105,6 +100,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         // Return 4-digit password
         return String.format("%04d", random.nextInt(10000));
+    }
+
+    @Transactional(readOnly = true)
+    private Registration getRegistrationInternal(Long registrationId) {
+        return registrationRepository.findById(registrationId).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Registration with id=%d not found.", registrationId)));
     }
 
 }

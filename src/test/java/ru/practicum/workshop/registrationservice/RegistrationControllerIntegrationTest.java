@@ -324,6 +324,23 @@ public class RegistrationControllerIntegrationTest {
     }
 
     @Test
+    public void updateRegistrationData_whenIdInvalid_thenThrowException() throws Exception {
+        UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
+                .id(0L)
+                .password("1234")
+                .name("Yuri")
+                .email("yuri@yandex.ru")
+                .phone("+79991234560").build();
+
+        mockMvc.perform(patch("/registrations")
+                        .content(objectMapper.writeValueAsString(updateRegistrationDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void updateRegistrationData_whenPasswordIsNull_thenThrowException() throws Exception {
         UpdateRegistrationDto updateRegistrationDto = UpdateRegistrationDto.builder()
                 .id(1L)
@@ -430,6 +447,19 @@ public class RegistrationControllerIntegrationTest {
     }
 
     @Test
+    public void deleteRegistration_whenIdInvalid_thenThrowException() throws Exception {
+        AuthRegistrationDto authRegistrationDto = AuthRegistrationDto.builder()
+                .id(0L).password("1234").build();
+
+        mockMvc.perform(delete("/registrations")
+                        .content(objectMapper.writeValueAsString(authRegistrationDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void deleteRegistration_whenPasswordIsInvalid_thenThrowException() throws Exception {
         AuthRegistrationDto authRegistrationDto = AuthRegistrationDto.builder()
                 .id(1L).password("1234").build();
@@ -485,6 +515,16 @@ public class RegistrationControllerIntegrationTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getRegistration_whenIdInvalid_thenThrowException() throws Exception {
+        Long registrationId = 0L;
+
+        mockMvc.perform(get("/registrations/{registrationId}", registrationId)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     // Method "getRegistrations" tests.
@@ -544,6 +584,15 @@ public class RegistrationControllerIntegrationTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getRegistrations_whenEventIdParamInvalid_thenThrowException() throws Exception {
+        mockMvc.perform(get("/registrations")
+                        .param("eventId", "0")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
 }

@@ -1,8 +1,6 @@
 package ru.practicum.workshop.registrationservice.mapping;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import ru.practicum.workshop.registrationservice.dto.AuthRegistrationDto;
 import ru.practicum.workshop.registrationservice.dto.NewRegistrationDto;
 import ru.practicum.workshop.registrationservice.dto.PublicRegistrationDto;
@@ -18,6 +16,7 @@ public interface RegistrationMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Registration updateRegistrationData(@MappingTarget Registration registration, UpdateRegistrationDto updateRegistrationDto);
 
     AuthRegistrationDto toAuthRegistrationDto(Registration registration);

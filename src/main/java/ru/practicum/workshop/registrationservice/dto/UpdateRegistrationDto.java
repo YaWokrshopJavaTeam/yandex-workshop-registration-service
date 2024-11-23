@@ -15,6 +15,7 @@ import static ru.practicum.workshop.registrationservice.dto.RegistrationDtoValid
 public class UpdateRegistrationDto {
 
     @NotNull(message = ID_NOT_NULL_ERROR_MESSAGE)
+    @Positive
     private Long id;
 
     @NotNull(message = PASSWORD_NOT_NULL_ERROR_MESSAGE)
