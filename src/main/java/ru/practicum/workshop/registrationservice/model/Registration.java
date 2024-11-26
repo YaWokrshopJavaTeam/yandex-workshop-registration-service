@@ -3,6 +3,8 @@ package ru.practicum.workshop.registrationservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "registrations")
 @Getter
@@ -28,6 +30,12 @@ public class Registration {
 
     @Column(name = "event_id")
     private Long eventId;
+
+    @Column(name = "registration_status")
+    private String registrationStatus;
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
 
     @Column(name = "password")
     private String password;

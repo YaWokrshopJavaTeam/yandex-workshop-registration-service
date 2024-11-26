@@ -4,6 +4,8 @@ public class RegistrationDtoValidationConstants {
 
     public static final String ID_NOT_NULL_ERROR_MESSAGE = "Registration id must be non-null.";
 
+    public static final String STATUS_NOT_NULL_ERROR_MESSAGE = "Registration status must be non-null.";
+
     public static final String PASSWORD_NOT_NULL_ERROR_MESSAGE = "Registration password must be non-null.";
 
     public static final String NAME_PATTERN_REGEXP = "^\\s*\\S.*";

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "0144725e-bdbe-4eab-9a67-f4a4d3d20a08",
+		"_postman_id": "d7f9af38-600d-41b6-90a1-5d7bdc8ac316",
 		"name": "Registration Service Test",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "24536323"
+		"_exporter_id": "33259687"
 	},
 	"item": [
 		{
@@ -2431,6 +2431,547 @@
 								}
 							]
 						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UpdateStatus",
+			"item": [
+				{
+					"name": "Add registration Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains required fields\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.expect(jsonData).to.have.property(\"password\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration Copy 2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains required fields\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.expect(jsonData).to.have.property(\"password\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add registration Copy 3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let currentUserId = parseInt(pm.collectionVariables.get(\"nextUserId\"));\r",
+									"let currentEventId = parseInt(pm.collectionVariables.get(\"nextEventId\"));\r",
+									"\r",
+									"const newRegistrationDto = {\r",
+									"    name: `User${currentUserId}`,\r",
+									"    email: `user${currentUserId}@yandex.ru`,\r",
+									"    phone: \"+79991234567\",\r",
+									"    eventId: currentEventId\r",
+									"};\r",
+									"\r",
+									"pm.variables.set(\"newRegistrationDto\", JSON.stringify(newRegistrationDto));\r",
+									"\r",
+									"pm.collectionVariables.set(\"nextUserId\", currentUserId + 1);\r",
+									"pm.collectionVariables.set(\"nextEventId\", currentEventId + 1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Http status 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains required fields\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.expect(jsonData).to.have.property(\"password\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{newRegistrationDto}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update status approved",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус 200 OK\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Ответ подтверждает изменение статуса\", () => {",
+									"    const jsonData = pm.response.json();",
+									"     pm.expect(jsonData).to.have.property(\"registrationStatus\").that.equals(\"APPROVED\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"8\",\n  \"status\": \"APPROVED\",\n  \"reason\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update status rejected",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус 200 OK\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Ответ подтверждает изменение статуса\", () => {",
+									"    const jsonData = pm.response.json();",
+									"     pm.expect(jsonData).to.have.property(\"registrationStatus\").that.equals(\"REJECTED\");",
+									"     pm.expect(jsonData).to.have.property(\"reason\").that.equals(\"Мы - Контур, мы шлем REJECTED всем, и что ты нам сделаешь???\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n  \"status\": \"REJECTED\",\n  \"reason\": \"Мы - Контур, мы шлем REJECTED всем, и что ты нам сделаешь???\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update status wating",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус 200 OK\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Ответ подтверждает изменение статуса\", () => {",
+									"    const jsonData = pm.response.json();",
+									"     pm.expect(jsonData).to.have.property(\"registrationStatus\").that.equals(\"WAITING\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n  \"status\": \"WAITING\",\n  \"reason\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update invalid status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус ответа должен быть 400\", () => {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Ответ содержит описание ошибки\", () => {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"message\").that.equals(\"Unknown status: INVALID\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n  \"status\": \"INVALID\",\n  \"reason\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get registration with status and event Id",
+			"item": [
+				{
+					"name": "Get registration with status and event Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус ответа должен быть 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Ответ содержит список заявок\", () => {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\").and.is.not.empty;",
+									"    jsonData.forEach((registration) => {",
+									"        pm.expect(registration).to.have.property(\"registrationStatus\").that.is.oneOf([\"PENDING\", \"APPROVED\", \"WAITING\", \"REJECTED\"]);",
+									"        pm.expect(registration).to.have.property(\"eventId\").that.equals(57);",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Заявки отсортированы по дате создания\", () => {",
+									"    const jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length - 1; i++) {",
+									"        const current = new Date(jsonData[i].createdAt);",
+									"        const next = new Date(jsonData[i + 1].createdAt);",
+									"        pm.expect(current <= next).to.be.true;",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registrations/status/{{eventId}}?status=PENDING,APPROVED,WAITING,REJECTED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations",
+								"status",
+								"{{eventId}}"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING,APPROVED,WAITING,REJECTED"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Registration count by status and evenId",
+			"item": [
+				{
+					"name": "Get count REJECTED",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get count APPROVED",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get count WAITING",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get count PENDING",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Approved",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус 204 OK\", () => {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"24\",\n   \"password\": \"9837\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registrations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get count PENDING",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}

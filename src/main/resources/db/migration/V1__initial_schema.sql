@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS registrations (
     email VARCHAR(64) NOT NULL,
     phone VARCHAR(64) NOT NULL,
     event_id BIGINT NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    registration_status VARCHAR(64) NOT NULL,
     password VARCHAR(4) NOT NULL,
     CONSTRAINT pk_registrations PRIMARY KEY (id)
 );
