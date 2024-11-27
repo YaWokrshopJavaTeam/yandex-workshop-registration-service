@@ -1,30 +1,34 @@
 package ru.practicum.workshop.registrationservice;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
+import org.mockito.exceptions.misusing.PotentialStubbingProblem;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.workshop.registrationservice.dto.AuthRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.NewRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.PublicRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.UpdateRegistrationDto;
+import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
 import ru.practicum.workshop.registrationservice.mapping.RegistrationMapper;
 import ru.practicum.workshop.registrationservice.model.Registration;
+import ru.practicum.workshop.registrationservice.model.RegistrationStatus;
 import ru.practicum.workshop.registrationservice.repository.RegistrationRepository;
 import ru.practicum.workshop.registrationservice.service.RegistrationServiceImpl;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -230,6 +234,7 @@ public class RegistrationServiceImplUnitTest {
                 .name("Yury")
                 .email("yury@yandex.ru")
                 .phone("+79991234567")
+                .registrationStatus(RegistrationStatus.PENDING.toString())
                 .eventId(1L).build();
 
         when(registrationRepository.findById(any(Long.class))).thenReturn(Optional.of(registration));
@@ -347,6 +352,147 @@ public class RegistrationServiceImplUnitTest {
                 registrationService.getRegistrations(eventId, pageable);
 
         assertThat(actualPublicRegistrationDto, equalTo(expectedPublicRegistrationDto));
+    }
+
+    @Test
+    void updateStatus_shouldThrowExceptionForInvalidStatus() {
+        UpdateStatusDto invalidRequest = new UpdateStatusDto();
+        invalidRequest.setStatus("INVALID_STATUS");
+
+        Exception exception = assertThrows(ValidationException.class, () ->
+                registrationService.updateRegistrationStatus(invalidRequest)
+        );
+
+        assertEquals("Unknown status: INVALID_STATUS", exception.getMessage());
+    }
+
+    @Test
+    void updateStatus_shouldThrowExceptionForNonExistingRegistration() {
+        Long registrationId = 999L;
+        UpdateStatusDto request = new UpdateStatusDto();
+        request.setStatus("APPROVED");
+
+        Mockito.when(registrationRepository.findById(registrationId)).thenReturn(Optional.empty());
+
+
+        assertThrows(PotentialStubbingProblem.class, () ->
+                registrationService.updateRegistrationStatus(request)
+        );
+    }
+
+    @Test
+    void updateStatus_shouldUpdateStatusSuccessfully() {
+        UpdateStatusDto request = new UpdateStatusDto();
+        request.setStatus("APPROVED");
+        request.setId(1L);
+
+        Registration registration = new Registration();
+        registration.setId(1L);
+        registration.setRegistrationStatus("PENDING");
+
+        Mockito.when(registrationRepository.findById(1L))
+                .thenReturn(Optional.of(registration));
+
+        registrationService.updateRegistrationStatus(request);
+
+        assertEquals("APPROVED", registration.getRegistrationStatus());
+        Mockito.verify(registrationRepository).save(registration);
+    }
+
+    @Test
+    void countByStatus_shouldReturnCountSuccessfully() {
+        Long eventId = 1L;
+
+        List<Object[]> response = new ArrayList<>();
+        response.add(new Object[]{"PENDING", 3L});
+        Mockito.when(registrationRepository.getListByEventIdAndGroupByRegistrationStatus(eventId))
+                .thenReturn(response);
+
+        Map<String, Long> result = registrationService.countRegistrationsByStatus(eventId);
+
+        assertNotNull(result);
+        assertEquals(3L, result.values().toArray()[0]);
+    }
+
+    @Test
+    void getRegistrationsWithStatusesAndEventId_shouldFilterRegistrationsByStatuses() {
+        Long eventId = 1L;
+        List<String> statuses = List.of("PENDING");
+
+        List<Registration> mockRegistrations = List.of(
+                new Registration(1L, "name", "email", "89993335544", 1L,
+                        "PENDING", LocalDateTime.now(), "1234"),
+                new Registration(2L, "name2", "email2", "89993335545", 1L,
+                        "APPROVED", LocalDateTime.now(), "1235"));
+
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
+                .thenReturn(mockRegistrations);
+
+        Mockito.when(registrationMapper.toStatusRegistrationDtoWithoutReason(Mockito.any()))
+                .thenReturn(new PublicRegistrationStatusDto("name", "email", "89993335544", 1L,
+                        "PENDING", null, ""));
+
+        List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
+
+        assertEquals(1, result.size());
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
+        Mockito.verify(registrationMapper).toStatusRegistrationDtoWithoutReason(Mockito.any());
+    }
+
+    @Test
+    void getRegistrationsWithStatusesAndEventId_shouldReturnEmptyListIfNoRegistrations() {
+        Long eventId = 1L;
+        List<String> statuses = List.of("PENDING");
+
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
+                .thenReturn(Collections.emptyList());
+
+        List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
+
+        assertEquals(0, result.size());
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
+        Mockito.verifyNoInteractions(registrationMapper);
+    }
+
+    @Test
+    void getRegistrationsWithStatusesAndEventId_shouldReturnAllRegistrationsIfStatusesNotProvided() {
+        Long eventId = 1L;
+        List<String> statuses = Collections.emptyList();
+
+        List<Registration> mockRegistrations = List.of(
+                new Registration(1L, "name", "email", "89993335544", 1L,
+                        "PENDING", LocalDateTime.now(), "1234"),
+                new Registration(2L, "name2", "email2", "89993335545", 1L,
+                        "APPROVED", LocalDateTime.now(), "1235")
+        );
+
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
+                .thenReturn(mockRegistrations);
+
+        Mockito.when(registrationMapper.toListStatusRegistrationDto(mockRegistrations))
+                .thenReturn(List.of(
+                        new PublicRegistrationStatusDto("name", "email", "89993335544", 1L,
+                                "PENDING", null, ""),
+                        new PublicRegistrationStatusDto("name2", "email2", "89993335545", 1L,
+                                "APPROVED", null, "")
+                ));
+
+        List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
+
+        assertEquals(2, result.size());
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
+    }
+
+    @Test
+    void getRegistrationsWithStatusesAndEventId_shouldThrowExceptionForInvalidStatus() {
+        Long eventId = 1L;
+        List<String> statuses = List.of("INVALID_STATUS");
+
+        Exception exception = assertThrows(ValidationException.class, () ->
+                registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses)
+        );
+
+        assertEquals("Unknown status: INVALID_STATUS", exception.getMessage());
     }
 
 }

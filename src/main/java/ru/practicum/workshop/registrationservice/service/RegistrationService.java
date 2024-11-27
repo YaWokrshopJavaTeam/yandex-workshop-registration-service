@@ -1,12 +1,10 @@
 package ru.practicum.workshop.registrationservice.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.practicum.workshop.registrationservice.dto.AuthRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.NewRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.PublicRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.UpdateRegistrationDto;
+import ru.practicum.workshop.registrationservice.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RegistrationService {
 
@@ -20,4 +18,9 @@ public interface RegistrationService {
 
     List<PublicRegistrationDto> getRegistrations(Long eventId, Pageable pageable);
 
+    PublicRegistrationStatusDto updateRegistrationStatus(UpdateStatusDto updateStatusDto);
+
+    List<PublicRegistrationStatusDto> getRegistrationsWithStatusesAndEventId(Long eventId, List<String> statuses);
+
+    Map<String, Long> countRegistrationsByStatus(Long eventId);
 }

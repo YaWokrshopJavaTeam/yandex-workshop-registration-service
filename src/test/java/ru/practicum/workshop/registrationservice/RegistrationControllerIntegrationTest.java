@@ -11,15 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.workshop.registrationservice.controller.RegistrationController;
-import ru.practicum.workshop.registrationservice.dto.AuthRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.NewRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.PublicRegistrationDto;
-import ru.practicum.workshop.registrationservice.dto.UpdateRegistrationDto;
+import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
 import ru.practicum.workshop.registrationservice.service.RegistrationService;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -593,6 +593,102 @@ public class RegistrationControllerIntegrationTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testUpdateRegistrationStatus_Success() throws Exception {
+        UpdateStatusDto updateStatusDto = new UpdateStatusDto(1L, "APPROVED", "");
+        PublicRegistrationStatusDto responseDto = new PublicRegistrationStatusDto("name", "email",
+                "+79991234560",1L, "APPROVED",
+                LocalDateTime.of(2024, 11, 27, 8, 0), "");
+
+        when(registrationService.updateRegistrationStatus(updateStatusDto)).thenReturn(responseDto);
+
+        mockMvc.perform(patch("/registrations/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateStatusDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.eventId").value(1L))
+                .andExpect(jsonPath("$.registrationStatus").value("APPROVED"));
+    }
+
+    @Test
+    void testUpdateRegistrationStatus_InvalidInput() throws Exception {
+        UpdateStatusDto invalidDto = new UpdateStatusDto(null, "", ""); // Invalid data
+
+        mockMvc.perform(patch("/registrations/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetRegistrationsByStatusAndEventId_Success() throws Exception {
+        List<PublicRegistrationStatusDto> response = List.of(
+                new PublicRegistrationStatusDto("name1", "email1",
+                        "+79991234560",1L, "APPROVED",
+                        LocalDateTime.of(2024, 11, 27, 8, 0), ""),
+                new PublicRegistrationStatusDto("name2", "email2",
+                        "+79991234561",1L, "PENDING",
+                        LocalDateTime.of(2024, 11, 27, 9, 0), "")
+        );
+
+        when(registrationService.getRegistrationsWithStatusesAndEventId(1L, List.of("APPROVED", "PENDING")))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/registrations/status/1")
+                        .param("status", "APPROVED")
+                        .param("status", "PENDING"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].eventId").value(1L))
+                .andExpect(jsonPath("$[0].registrationStatus").value("APPROVED"))
+                .andExpect(jsonPath("$[0].name").value("name1"))
+                .andExpect(jsonPath("$[1].eventId").value(1L))
+                .andExpect(jsonPath("$[1].registrationStatus").value("PENDING"))
+                .andExpect(jsonPath("$[1].name").value("name2"));
+    }
+
+    @Test
+    void testGetRegistrationsByStatusAndEventId_InvalidEventId() throws Exception {
+        mockMvc.perform(get("/registrations/status/0") // Invalid eventId
+                        .param("status", "APPROVED"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testGetRegistrationsByStatusAndEventId_NoStatuses() throws Exception {
+        mockMvc.perform(get("/registrations/status/1")) // Missing statuses
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCountByStatus_Success() throws Exception {
+        Map<String, Long> response = Map.of("APPROVED", 10L, "PENDING", 5L);
+
+        when(registrationService.countRegistrationsByStatus(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/registrations/status/count")
+                        .param("eventId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.APPROVED").value(10L))
+                .andExpect(jsonPath("$.PENDING").value(5L));
+    }
+
+    @Test
+    void testCountByStatus_InvalidEventId() throws Exception {
+        mockMvc.perform(get("/registrations/status/count")
+                        .param("eventId", "0")) // Invalid eventId
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testCountByStatus_EmptyResponse() throws Exception {
+        when(registrationService.countRegistrationsByStatus(1L)).thenReturn(Collections.emptyMap());
+
+        mockMvc.perform(get("/registrations/status/count")
+                        .param("eventId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
 }

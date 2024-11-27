@@ -2,6 +2,7 @@ package ru.practicum.workshop.registrationservice.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -81,6 +82,16 @@ public class MainExceptionHandler {
     public ApiError handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         ApiError apiError = new ApiError(exception.getClass().getSimpleName(),
                 exception.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(" ")));
+
+        log.info("Exception handled: {}", apiError);
+
+        return apiError;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMethodArgumentValidationException(ValidationException exception) {
+        ApiError apiError = new ApiError(exception.getClass().getSimpleName(), exception.getMessage());
 
         log.info("Exception handled: {}", apiError);
 
