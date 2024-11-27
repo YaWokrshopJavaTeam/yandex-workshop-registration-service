@@ -17,8 +17,10 @@ import ru.practicum.workshop.registrationservice.repository.RegistrationReposito
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +34,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public AuthRegistrationDto createRegistration(NewRegistrationDto newRegistrationDto) {
-        Registration newRegistration = registrationMapper.toRegistration(newRegistrationDto, getRandomPassword());
-
-        newRegistration.setRegistrationStatus(RegistrationStatus.PENDING.toString());
-        newRegistration.setCreatedAt(LocalDateTime.now());
+        Registration newRegistration = registrationMapper.toRegistration(newRegistrationDto, getRandomPassword(),
+                RegistrationStatus.PENDING.toString(), LocalDateTime.now());
 
         registrationRepository.save(newRegistration);
 
@@ -50,8 +50,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registration = getRegistrationInternal(updateRegistrationDto.getId());
 
         if (!registration.getPassword().equals(updateRegistrationDto.getPassword())) {
-            throw new AuthenticationException(
-                    String.format("Incorrect password for registration with id=%d", updateRegistrationDto.getId()));
+            throw new AuthenticationException(String.format("Incorrect password for registration with id=%d", updateRegistrationDto.getId()));
         }
 
         registrationMapper.updateRegistrationData(registration, updateRegistrationDto);
@@ -74,7 +73,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         if (registration.getRegistrationStatus().equals(RegistrationStatus.APPROVED.toString())) {
             Optional<Registration> waitingRegistration = registrationRepository
-                    .findEarliestRegistrationByStatusNative(RegistrationStatus.WAITING.toString());
+                    .findFirstByRegistrationStatusOrderByCreatedAtAsc(RegistrationStatus.WAITING.toString());
             if (waitingRegistration.isPresent()) {
                 Registration waiting = waitingRegistration.get();
                 waiting.setRegistrationStatus(RegistrationStatus.PENDING.toString());
@@ -114,10 +113,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration registrationToUpdateStatus = getRegistrationInternal(updateStatusDto.getId());
         registrationToUpdateStatus.setRegistrationStatus(status.toString());
 
-        registrationRepository.save(registrationToUpdateStatus);
-
-        log.info("update registration status id={}", updateStatusDto.getId());
-
         if (updateStatusDto.getStatus().equals(RegistrationStatus.REJECTED.toString())) {
             if (updateStatusDto.getReason() == null) {
                 throw new ValidationException("Reason not be null with status REJECTED");
@@ -125,6 +120,11 @@ public class RegistrationServiceImpl implements RegistrationService {
             return registrationMapper.toStatusRegistrationDtoWithReason(registrationToUpdateStatus,
                     updateStatusDto.getReason());
         }
+
+        registrationRepository.save(registrationToUpdateStatus);
+
+        log.info("update registration status id={}", updateStatusDto.getId());
+
         return registrationMapper.toStatusRegistrationDtoWithoutReason(registrationToUpdateStatus);
     }
 
@@ -134,27 +134,33 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .map(RegistrationStatus::parseStatus)
                 .toList();
 
-        List<Registration> registrations = registrationRepository.findAllByEventIdOrderByCreatedAt(eventId);
+        if (statusesFromRequest.isEmpty()) {
+            return List.of();
+        }
+
+        List<Registration> registrations = registrationRepository
+                .findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId,statuses);
 
         log.info("Sent registrations with eventId={} and statuses {}.", eventId, statusesFromRequest);
 
-        if (statusesFromRequest.isEmpty()) return registrationMapper.toListStatusRegistrationDto(registrations);
-
-        List<PublicRegistrationStatusDto> r1 = registrations.stream()
-                .filter(r -> statusesFromRequest.contains(RegistrationStatus.parseStatus(r.getRegistrationStatus())))
+        return registrations.stream()
                 .map(registrationMapper::toStatusRegistrationDtoWithoutReason)
                 .toList();
-        return r1;
     }
 
     @Transactional(readOnly = true)
-    public PublicRegistrationCountDto countRegistrationsByStatus(Long eventId, String status) {
-        RegistrationStatus statusFromRequest = RegistrationStatus.parseStatus(status);
+    public Map<String, Long> countRegistrationsByStatus(Long eventId) {
+        List<Object[]> response = registrationRepository.getListByEventIdAndGroupByRegistrationStatus(eventId);
 
-        log.info("Sent count registrations with eventId={} and status {}.", eventId, statusFromRequest);
+        if(response.isEmpty()) return Map.of();
 
-        return new PublicRegistrationCountDto(statusFromRequest.toString(),
-                registrationRepository.countByEventIdAndRegistrationStatus(eventId, status));
+        log.info("Sent count registrations with eventId={}.", eventId);
+
+        return response.stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> ((Number) row[1]).longValue()
+                ));
     }
 
     private String getRandomPassword() {

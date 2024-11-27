@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.workshop.registrationservice.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RegistrationService {
 
@@ -21,5 +22,5 @@ public interface RegistrationService {
 
     List<PublicRegistrationStatusDto> getRegistrationsWithStatusesAndEventId(Long eventId, List<String> statuses);
 
-    PublicRegistrationCountDto countRegistrationsByStatus(Long eventId, String status);
+    Map<String, Long> countRegistrationsByStatus(Long eventId);
 }

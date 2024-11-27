@@ -12,6 +12,7 @@ import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.service.RegistrationService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Validated
@@ -75,8 +76,8 @@ public class RegistrationController {
     }
 
     @GetMapping("/status/count")
-    public PublicRegistrationCountDto countByStatus(@RequestParam("eventId") @Positive Long eventId, @RequestParam("status") String status) {
-        log.info("Request: get count registrations with status {} and eventId {}", status, eventId);
-        return registrationService.countRegistrationsByStatus(eventId, status);
+    public Map<String, Long> countByStatus(@RequestParam("eventId") @Positive Long eventId) {
+        log.info("Request: get count registrations with eventId {}", eventId);
+        return registrationService.countRegistrationsByStatus(eventId);
     }
 }

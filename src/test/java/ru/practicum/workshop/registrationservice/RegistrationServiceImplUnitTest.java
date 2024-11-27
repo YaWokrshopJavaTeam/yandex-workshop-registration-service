@@ -22,10 +22,7 @@ import ru.practicum.workshop.registrationservice.repository.RegistrationReposito
 import ru.practicum.workshop.registrationservice.service.RegistrationServiceImpl;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -359,7 +356,6 @@ public class RegistrationServiceImplUnitTest {
 
     @Test
     void updateStatus_shouldThrowExceptionForInvalidStatus() {
-        Long registrationId = 1L;
         UpdateStatusDto invalidRequest = new UpdateStatusDto();
         invalidRequest.setStatus("INVALID_STATUS");
 
@@ -407,52 +403,15 @@ public class RegistrationServiceImplUnitTest {
     void countByStatus_shouldReturnCountSuccessfully() {
         Long eventId = 1L;
 
-        Mockito.when(registrationRepository.countByEventIdAndRegistrationStatus(eventId, "PENDING")).thenReturn(3L);
+        List<Object[]> response = new ArrayList<>();
+        response.add(new Object[]{"PENDING", 3L});
+        Mockito.when(registrationRepository.getListByEventIdAndGroupByRegistrationStatus(eventId))
+                .thenReturn(response);
 
-        Long result = registrationService.countRegistrationsByStatus(eventId, "PENDING");
-
-        assertNotNull(result);
-        assertEquals(3L, result);
-    }
-
-    @Test
-    void countByStatus_shouldReturnZeroNoRegistrations() {
-        Long eventId = 1L;
-
-        Mockito.when(registrationRepository.countByEventIdAndRegistrationStatus(eventId, "PENDING")).thenReturn(0L);
-
-        Long result = registrationService.countRegistrationsByStatus(eventId, "PENDING");
+        Map<String, Long> result = registrationService.countRegistrationsByStatus(eventId);
 
         assertNotNull(result);
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void getRegistrationsWithStatusesAndEventId_shouldReturnAllRegistrationsIfStatusesEmpty() {
-        Long eventId = 1L;
-        List<String> statuses = Collections.emptyList();
-
-        List<Registration> mockRegistrations = List.of(
-                new Registration(1L, "name", "email", "89993335544", 1L,
-                        "PENDING", LocalDateTime.now(), "1234"),
-                new Registration(2L, "name2", "email2", "89993335545", 1L,
-                        "APPROVED", LocalDateTime.now(), "1235")
-        );
-
-        Mockito.when(registrationRepository.findAllByEventIdOrderByCreatedAt(eventId))
-                .thenReturn(mockRegistrations);
-
-        Mockito.when(registrationMapper.toListStatusRegistrationDto(mockRegistrations)).thenReturn(List.of(
-                        new PublicRegistrationStatusDto("name", "email", "89993335544", 1L,
-                                "PENDING", null, ""),
-                        new PublicRegistrationStatusDto("name2", "email2", "89993335545", 1L,
-                                "APPROVED", null, "")
-        ));
-
-        List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
-
-        assertEquals(2, result.size());
-        Mockito.verify(registrationRepository).findAllByEventIdOrderByCreatedAt(eventId);
+        assertEquals(3L, result.values().toArray()[0]);
     }
 
     @Test
@@ -466,7 +425,7 @@ public class RegistrationServiceImplUnitTest {
                 new Registration(2L, "name2", "email2", "89993335545", 1L,
                         "APPROVED", LocalDateTime.now(), "1235"));
 
-        Mockito.when(registrationRepository.findAllByEventIdOrderByCreatedAt(eventId))
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
                 .thenReturn(mockRegistrations);
 
         Mockito.when(registrationMapper.toStatusRegistrationDtoWithoutReason(Mockito.any()))
@@ -476,7 +435,7 @@ public class RegistrationServiceImplUnitTest {
         List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
 
         assertEquals(1, result.size());
-        Mockito.verify(registrationRepository).findAllByEventIdOrderByCreatedAt(eventId);
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
         Mockito.verify(registrationMapper).toStatusRegistrationDtoWithoutReason(Mockito.any());
     }
 
@@ -485,13 +444,13 @@ public class RegistrationServiceImplUnitTest {
         Long eventId = 1L;
         List<String> statuses = List.of("PENDING");
 
-        Mockito.when(registrationRepository.findAllByEventIdOrderByCreatedAt(eventId))
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
                 .thenReturn(Collections.emptyList());
 
         List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
 
         assertEquals(0, result.size());
-        Mockito.verify(registrationRepository).findAllByEventIdOrderByCreatedAt(eventId);
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
         Mockito.verifyNoInteractions(registrationMapper);
     }
 
@@ -507,7 +466,7 @@ public class RegistrationServiceImplUnitTest {
                         "APPROVED", LocalDateTime.now(), "1235")
         );
 
-        Mockito.when(registrationRepository.findAllByEventIdOrderByCreatedAt(eventId))
+        Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
                 .thenReturn(mockRegistrations);
 
         Mockito.when(registrationMapper.toListStatusRegistrationDto(mockRegistrations))
@@ -521,7 +480,7 @@ public class RegistrationServiceImplUnitTest {
         List<PublicRegistrationStatusDto> result = registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
 
         assertEquals(2, result.size());
-        Mockito.verify(registrationRepository).findAllByEventIdOrderByCreatedAt(eventId);
+        Mockito.verify(registrationRepository).findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses);
     }
 
     @Test
