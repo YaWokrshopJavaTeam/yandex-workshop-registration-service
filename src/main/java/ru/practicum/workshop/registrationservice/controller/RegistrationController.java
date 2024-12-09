@@ -70,7 +70,7 @@ public class RegistrationController {
     @GetMapping("/status/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public List<PublicRegistrationStatusDto> getRegistrationsByStatusAndEventId(@PathVariable @Positive Long eventId,
-                                                                                @RequestParam(value="status") List<String> statuses) {
+                                                                                @RequestParam(value = "status") List<String> statuses) {
         log.info("Request: get registrations with statuses {} and eventId {}", statuses, eventId);
         return registrationService.getRegistrationsWithStatusesAndEventId(eventId, statuses);
     }
