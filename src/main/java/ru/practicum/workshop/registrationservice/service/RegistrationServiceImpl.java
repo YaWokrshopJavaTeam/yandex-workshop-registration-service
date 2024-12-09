@@ -152,7 +152,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     public Map<String, Long> countRegistrationsByStatus(Long eventId) {
         List<Object[]> response = registrationRepository.getListByEventIdAndGroupByRegistrationStatus(eventId);
 
-        if(response.isEmpty()) return Map.of();
+        if (response.isEmpty()) return Map.of();
 
         log.info("Sent count registrations with eventId={}.", eventId);
 
