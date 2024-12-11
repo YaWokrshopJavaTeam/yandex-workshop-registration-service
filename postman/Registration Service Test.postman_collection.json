@@ -3003,7 +3003,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:8080",
+			"value": "http://158.160.82.103:8084",
 			"type": "string"
 		},
 		{
