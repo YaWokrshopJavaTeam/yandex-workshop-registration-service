@@ -80,4 +80,12 @@ public class RegistrationController {
         log.info("Request: get count registrations with eventId {}", eventId);
         return registrationService.countRegistrationsByStatus(eventId);
     }
+
+    @GetMapping("/internal/user-auth")
+    public ResponseWithUserId confirmUser(@RequestHeader(value = "X-Registration-Id") Long registrationId,
+                                          @RequestHeader(value = "X-Registration-Password") String registrationPassword) {
+        log.info("Request: confirm user in registration with id {}", registrationId);
+        return registrationService.confirmUser(registrationId, registrationPassword);
+    }
+
 }
