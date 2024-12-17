@@ -1,0 +1,1 @@
+ALTER TABLE registrations ADD user_id BIGINT NOT NULL;
