@@ -29,6 +29,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final RegistrationMapper registrationMapper;
     private final UserClient userClient;
+    private final EventClient eventClient;
 
     @Override
     @Transactional
@@ -58,6 +59,10 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
 
         registrationMapper.updateRegistrationData(registration, updateRegistrationDto);
+
+        UpdateUserFromRegistrationDto updateUserFromRegistrationDto = new UpdateUserFromRegistrationDto(registration.getName(), registration.getEmail());
+        userClient.autoUpdateUser(updateUserFromRegistrationDto, registration.getUserId());
+
         registrationRepository.save(registration);
 
         log.info("Registration data updated: {}", registration);
@@ -76,6 +81,13 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
 
         if (registration.getRegistrationStatus().equals(RegistrationStatus.APPROVED.toString())) {
+
+            EventResponse eventResponse = eventClient.getEvent(registration.getEventId(), registration.getUserId());
+            if (LocalDateTime.now().isAfter(eventResponse.getStartDateTime()) &&
+                    LocalDateTime.now().isBefore(eventResponse.getEndDateTime())) {
+                throw new ValidationException("You can't delete registration. Event id=" + registration.getEventId() + " is already started.");
+            }
+
             Optional<Registration> waitingRegistration = registrationRepository
                     .findFirstByRegistrationStatusOrderByCreatedAtAsc(RegistrationStatus.WAITING.toString());
             if (waitingRegistration.isPresent()) {
@@ -84,6 +96,11 @@ public class RegistrationServiceImpl implements RegistrationService {
                 registrationRepository.save(waiting);
                 log.info("Registration with id={} update status from WAITING to PENDING", waiting.getId());
             }
+        }
+
+        long numberOfUserRegistrations = registrationRepository.countByUserId(registration.getUserId());
+        if (numberOfUserRegistrations == 1) {
+            userClient.autoDeleteUser(registration.getUserId());
         }
 
         registrationRepository.deleteById(authRegistrationDto.getId());

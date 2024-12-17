@@ -19,4 +19,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     @Query(value = "SELECT registration_status, COUNT(*) FROM registrations WHERE event_id = :eventId group by registration_status",
             nativeQuery = true)
     List<Object[]> getListByEventIdAndGroupByRegistrationStatus(Long eventId);
+
+    long countByUserId(Long userId);
 }
