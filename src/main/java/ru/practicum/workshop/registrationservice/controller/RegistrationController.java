@@ -88,4 +88,10 @@ public class RegistrationController {
         return registrationService.confirmUser(registrationId, registrationPassword);
     }
 
+    @GetMapping("/internal/status-of-registration/{eventId}")
+    public StatusOfRegistration getStatusOfRegistration(@PathVariable @Positive Long eventId,
+                                                        @RequestHeader("X-Review-User-Id") Long userId) {
+        return registrationService.getStatusOfRegistration(eventId, userId);
+    }
+
 }

@@ -214,4 +214,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
         return new ResponseWithUserId(registration.getUserId());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StatusOfRegistration getStatusOfRegistration(Long eventId, Long userId) {
+        Registration registration = registrationRepository.findByEventIdAndUserId(eventId, userId).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Registration from user id=%d to event id=%d not found.", userId, eventId)));
+
+        return registrationMapper.toStatusOfRegistration(registration);
+    }
 }

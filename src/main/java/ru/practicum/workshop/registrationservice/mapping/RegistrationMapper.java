@@ -22,6 +22,8 @@ public interface RegistrationMapper {
 
     PublicRegistrationDto toPublicRegistrationDto(Registration registration);
 
+    StatusOfRegistration toStatusOfRegistration(Registration registration);
+
     List<PublicRegistrationDto> toPublicRegistrationDto(List<Registration> registrationList);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -10,7 +10,7 @@ import ru.practicum.workshop.registrationservice.dto.NewUserDto;
 import ru.practicum.workshop.registrationservice.dto.ResponseWithUserId;
 import ru.practicum.workshop.registrationservice.dto.UpdateUserFromRegistrationDto;
 
-@FeignClient(name = "user-service-client", url = "http://host.docker.internal:8084")
+@FeignClient(name = "user-service-client", url = "http://localhost:8081")
 public interface UserClient {
     @PostMapping("/users/internal")
     ResponseWithUserId autoCreateUser(@RequestBody NewUserDto newUserDto);
