@@ -1,4 +1,4 @@
-package ru.practicum.workshop.registrationservice.dto;
+package ru.practicum.workshop.registrationservice.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

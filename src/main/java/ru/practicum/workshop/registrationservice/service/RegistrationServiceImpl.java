@@ -7,6 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.workshop.registrationservice.client.EventClient;
+import ru.practicum.workshop.registrationservice.client.UserClient;
+import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
+import ru.practicum.workshop.registrationservice.client.dto.UpdateUserFromRegistrationDto;
 import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
 import ru.practicum.workshop.registrationservice.mapping.RegistrationMapper;
@@ -37,10 +41,10 @@ public class RegistrationServiceImpl implements RegistrationService {
         Registration newRegistration = registrationMapper.toRegistration(newRegistrationDto, getRandomPassword(),
                 RegistrationStatus.PENDING.toString(), LocalDateTime.now());
 
-        NewUserDto newUserDto = new NewUserDto(newRegistration.getName(), newRegistration.getEmail(), newRegistration.getPassword(),
+        NewUserDto newUserDto = new NewUserDto("autoUser", newRegistration.getEmail(), "autoPassword",
                 "Auto registration from registration service.");
 
-        newRegistration.setUserId(userClient.autoCreateUser(newUserDto).getUserId());
+        newRegistration.setUserId(userClient.autoCreateUser(newUserDto));
 
         registrationRepository.save(newRegistration);
 
@@ -60,7 +64,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         registrationMapper.updateRegistrationData(registration, updateRegistrationDto);
 
-        UpdateUserFromRegistrationDto updateUserFromRegistrationDto = new UpdateUserFromRegistrationDto(registration.getName(), registration.getEmail());
+        UpdateUserFromRegistrationDto updateUserFromRegistrationDto = new UpdateUserFromRegistrationDto(registration.getEmail());
         userClient.autoUpdateUser(updateUserFromRegistrationDto, registration.getUserId());
 
         registrationRepository.save(registration);
@@ -206,22 +210,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseWithUserId confirmUser(Long registrationId, String registrationPassword) {
-        Registration registration = getRegistrationInternal(registrationId);
-        if (!registration.getPassword().equals(registrationPassword)) {
-            throw new AuthenticationException(
-                    String.format("Incorrect password for registration with id=%d", registrationId));
-        }
-        return new ResponseWithUserId(registration.getUserId());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public StatusOfRegistration getStatusOfRegistration(Long eventId, Long userId) {
+    public String getStatusOfRegistration(Long eventId, Long userId) {
         Registration registration = registrationRepository.findByEventIdAndUserId(eventId, userId).orElseThrow(
                 () -> new EntityNotFoundException(
                         String.format("Registration from user id=%d to event id=%d not found.", userId, eventId)));
 
-        return registrationMapper.toStatusOfRegistration(registration);
+        return registration.getRegistrationStatus();
     }
 }

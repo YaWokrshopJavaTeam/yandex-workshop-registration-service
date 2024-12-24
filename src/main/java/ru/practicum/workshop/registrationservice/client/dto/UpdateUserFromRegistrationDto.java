@@ -1,4 +1,4 @@
-package ru.practicum.workshop.registrationservice.dto;
+package ru.practicum.workshop.registrationservice.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserFromRegistrationDto {
-    private String name;
     private String email;
 }

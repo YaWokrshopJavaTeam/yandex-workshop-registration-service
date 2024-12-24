@@ -1,4 +1,4 @@
-package ru.practicum.workshop.registrationservice.service;
+package ru.practicum.workshop.registrationservice.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -7,13 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import ru.practicum.workshop.registrationservice.dto.NewUserDto;
-import ru.practicum.workshop.registrationservice.dto.ResponseWithUserId;
-import ru.practicum.workshop.registrationservice.dto.UpdateUserFromRegistrationDto;
+import ru.practicum.workshop.registrationservice.client.dto.UpdateUserFromRegistrationDto;
 
-@FeignClient(name = "user-service-client", url = "http://localhost:8081")
+@FeignClient(name = "user-service-client", url = "http://http://host.docker.internal:8081")
 public interface UserClient {
     @PostMapping("/users/internal")
-    ResponseWithUserId autoCreateUser(@RequestBody NewUserDto newUserDto);
+    Long autoCreateUser(@RequestBody NewUserDto newUserDto);
 
     @PatchMapping("/users/internal")
     void autoUpdateUser(@RequestBody UpdateUserFromRegistrationDto updateUserFromRegistrationDto,

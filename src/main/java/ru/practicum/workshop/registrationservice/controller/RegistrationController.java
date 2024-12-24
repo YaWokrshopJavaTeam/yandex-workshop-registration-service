@@ -81,17 +81,9 @@ public class RegistrationController {
         return registrationService.countRegistrationsByStatus(eventId);
     }
 
-    @GetMapping("/internal/user-auth")
-    public ResponseWithUserId confirmUser(@RequestHeader(value = "X-Registration-Id") Long registrationId,
-                                          @RequestHeader(value = "X-Registration-Password") String registrationPassword) {
-        log.info("Request: confirm user in registration with id {}", registrationId);
-        return registrationService.confirmUser(registrationId, registrationPassword);
-    }
-
     @GetMapping("/internal/status-of-registration/{eventId}")
-    public StatusOfRegistration getStatusOfRegistration(@PathVariable @Positive Long eventId,
+    public String getStatusOfRegistration(@PathVariable @Positive Long eventId,
                                                         @RequestHeader("X-Review-User-Id") Long userId) {
         return registrationService.getStatusOfRegistration(eventId, userId);
     }
-
 }

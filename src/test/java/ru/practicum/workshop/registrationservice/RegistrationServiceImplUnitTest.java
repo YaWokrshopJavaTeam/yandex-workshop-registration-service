@@ -20,7 +20,7 @@ import ru.practicum.workshop.registrationservice.model.Registration;
 import ru.practicum.workshop.registrationservice.model.RegistrationStatus;
 import ru.practicum.workshop.registrationservice.repository.RegistrationRepository;
 import ru.practicum.workshop.registrationservice.service.RegistrationServiceImpl;
-import ru.practicum.workshop.registrationservice.service.UserClient;
+import ru.practicum.workshop.registrationservice.client.UserClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -68,10 +68,10 @@ public class RegistrationServiceImplUnitTest {
                     return argument;
                 });
 
-        ResponseWithUserId responseWithUserId = new ResponseWithUserId(1L);
+        Long userId = 1L;
 
         when(userClient.autoCreateUser(any(NewUserDto.class)))
-                .thenReturn(responseWithUserId);
+                .thenReturn(userId);
 
         AuthRegistrationDto actualAuthRegistrationDto = registrationService.createRegistration(newRegistrationDto);
 

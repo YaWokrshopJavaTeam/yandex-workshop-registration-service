@@ -24,7 +24,5 @@ public interface RegistrationService {
 
     Map<String, Long> countRegistrationsByStatus(Long eventId);
 
-    ResponseWithUserId confirmUser(Long registrationId, String registrationPassword);
-
-    StatusOfRegistration getStatusOfRegistration(Long eventId, Long userId);
+    String getStatusOfRegistration(Long eventId, Long userId);
 }
