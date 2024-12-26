@@ -23,4 +23,6 @@ public interface RegistrationService {
     List<PublicRegistrationStatusDto> getRegistrationsWithStatusesAndEventId(Long eventId, List<String> statuses);
 
     Map<String, Long> countRegistrationsByStatus(Long eventId);
+
+    String getStatusOfRegistration(Long eventId, Long userId);
 }

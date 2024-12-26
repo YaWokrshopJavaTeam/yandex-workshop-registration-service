@@ -20,6 +20,7 @@ import ru.practicum.workshop.registrationservice.model.Registration;
 import ru.practicum.workshop.registrationservice.model.RegistrationStatus;
 import ru.practicum.workshop.registrationservice.repository.RegistrationRepository;
 import ru.practicum.workshop.registrationservice.service.RegistrationServiceImpl;
+import ru.practicum.workshop.registrationservice.client.UserClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,7 +28,6 @@ import java.util.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +42,9 @@ public class RegistrationServiceImplUnitTest {
 
     @Mock
     private RegistrationRepository registrationRepository;
+
+    @Mock
+    private UserClient userClient;
 
     @InjectMocks
     private RegistrationServiceImpl registrationService;
@@ -64,6 +67,11 @@ public class RegistrationServiceImplUnitTest {
                     argument.setId(1L);
                     return argument;
                 });
+
+        Long userId = 1L;
+
+        when(userClient.autoCreateUser(any(NewUserDto.class)))
+                .thenReturn(userId);
 
         AuthRegistrationDto actualAuthRegistrationDto = registrationService.createRegistration(newRegistrationDto);
 
@@ -420,7 +428,7 @@ public class RegistrationServiceImplUnitTest {
         List<String> statuses = List.of("PENDING");
 
         List<Registration> mockRegistrations = List.of(
-                new Registration(1L, "name", "email", "89993335544", 1L,
+                new Registration(1L, 1L, "name", "email", "89993335544", 1L,
                         "PENDING", LocalDateTime.now(), "1234"));
 
         Mockito.when(registrationRepository.findAllByEventIdAndRegistrationStatusInOrderByCreatedAt(eventId, statuses))
@@ -458,9 +466,9 @@ public class RegistrationServiceImplUnitTest {
         List<String> statuses = Collections.emptyList();
 
         List<Registration> mockRegistrations = List.of(
-                new Registration(1L, "name", "email", "89993335544", 1L,
+                new Registration(1L, 1L, "name", "email", "89993335544", 1L,
                         "PENDING", LocalDateTime.now(), "1234"),
-                new Registration(2L, "name2", "email2", "89993335545", 1L,
+                new Registration(2L, 2L, "name2", "email2", "89993335545", 1L,
                         "APPROVED", LocalDateTime.now(), "1235")
         );
 

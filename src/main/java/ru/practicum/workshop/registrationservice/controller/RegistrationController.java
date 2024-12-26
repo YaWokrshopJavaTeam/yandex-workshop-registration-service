@@ -31,7 +31,6 @@ public class RegistrationController {
     }
 
     @PatchMapping
-    @ResponseStatus(HttpStatus.OK)
     public PublicRegistrationDto updateRegistrationData(@RequestBody @Valid UpdateRegistrationDto updateRegistrationDto) {
         log.info("Request: update registration data, updateRegistrationDto={}", updateRegistrationDto);
         return registrationService.updateRegistrationData(updateRegistrationDto);
@@ -45,14 +44,12 @@ public class RegistrationController {
     }
 
     @GetMapping("/{registrationId}")
-    @ResponseStatus(HttpStatus.OK)
     public PublicRegistrationDto getRegistration(@PathVariable @Positive Long registrationId) {
         log.info("Request: get registration by id={}", registrationId);
         return registrationService.getRegistration(registrationId);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<PublicRegistrationDto> getRegistrations(@RequestParam("eventId") @Positive Long eventId,
                                                         Pageable pageable) {
         log.info("Request: get all registrations for event id={}, page={}, size={}",
@@ -61,14 +58,12 @@ public class RegistrationController {
     }
 
     @PatchMapping("/status")
-    @ResponseStatus(HttpStatus.OK)
     public PublicRegistrationStatusDto updateRegistrationStatus(@RequestBody @Valid UpdateStatusDto updateStatusDto) {
         log.info("Request: update registration status {}", updateStatusDto);
         return registrationService.updateRegistrationStatus(updateStatusDto);
     }
 
     @GetMapping("/status/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public List<PublicRegistrationStatusDto> getRegistrationsByStatusAndEventId(@PathVariable @Positive Long eventId,
                                                                                 @RequestParam(value = "status") List<String> statuses) {
         log.info("Request: get registrations with statuses {} and eventId {}", statuses, eventId);
@@ -79,5 +74,11 @@ public class RegistrationController {
     public Map<String, Long> countByStatus(@RequestParam("eventId") @Positive Long eventId) {
         log.info("Request: get count registrations with eventId {}", eventId);
         return registrationService.countRegistrationsByStatus(eventId);
+    }
+
+    @GetMapping("/internal/status-of-registration/{eventId}")
+    public String getStatusOfRegistration(@PathVariable @Positive Long eventId,
+                                                        @RequestHeader("X-Review-User-Id") Long userId) {
+        return registrationService.getStatusOfRegistration(eventId, userId);
     }
 }

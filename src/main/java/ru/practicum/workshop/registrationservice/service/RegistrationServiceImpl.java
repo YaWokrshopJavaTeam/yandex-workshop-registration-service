@@ -7,6 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.workshop.registrationservice.client.EventClient;
+import ru.practicum.workshop.registrationservice.client.UserClient;
+import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
+import ru.practicum.workshop.registrationservice.client.dto.UpdateUserFromRegistrationDto;
 import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
 import ru.practicum.workshop.registrationservice.mapping.RegistrationMapper;
@@ -26,16 +30,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class RegistrationServiceImpl implements RegistrationService {
-
     private final RegistrationRepository registrationRepository;
-
     private final RegistrationMapper registrationMapper;
+    private final UserClient userClient;
+    private final EventClient eventClient;
 
     @Override
     @Transactional
     public AuthRegistrationDto createRegistration(NewRegistrationDto newRegistrationDto) {
         Registration newRegistration = registrationMapper.toRegistration(newRegistrationDto, getRandomPassword(),
                 RegistrationStatus.PENDING.toString(), LocalDateTime.now());
+
+        NewUserDto newUserDto = new NewUserDto("autoUser", newRegistration.getEmail(), "autoPassword",
+                "Auto registration from registration service.");
+
+        newRegistration.setUserId(userClient.autoCreateUser(newUserDto));
 
         registrationRepository.save(newRegistration);
 
@@ -54,6 +63,10 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
 
         registrationMapper.updateRegistrationData(registration, updateRegistrationDto);
+
+        UpdateUserFromRegistrationDto updateUserFromRegistrationDto = new UpdateUserFromRegistrationDto(registration.getEmail());
+        userClient.autoUpdateUser(updateUserFromRegistrationDto, registration.getUserId());
+
         registrationRepository.save(registration);
 
         log.info("Registration data updated: {}", registration);
@@ -72,6 +85,13 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
 
         if (registration.getRegistrationStatus().equals(RegistrationStatus.APPROVED.toString())) {
+
+            EventResponse eventResponse = eventClient.getEvent(registration.getEventId(), registration.getUserId());
+            if (LocalDateTime.now().isAfter(eventResponse.getStartDateTime()) &&
+                    LocalDateTime.now().isBefore(eventResponse.getEndDateTime())) {
+                throw new ValidationException("You can't delete registration. Event id=" + registration.getEventId() + " is already started.");
+            }
+
             Optional<Registration> waitingRegistration = registrationRepository
                     .findFirstByRegistrationStatusOrderByCreatedAtAsc(RegistrationStatus.WAITING.toString());
             if (waitingRegistration.isPresent()) {
@@ -82,12 +102,18 @@ public class RegistrationServiceImpl implements RegistrationService {
             }
         }
 
+        long numberOfUserRegistrations = registrationRepository.countByUserId(registration.getUserId());
+        if (numberOfUserRegistrations == 1) {
+            userClient.autoDeleteUser(registration.getUserId());
+        }
+
         registrationRepository.deleteById(authRegistrationDto.getId());
 
         log.info("Registration with id={} was deleted.", authRegistrationDto.getId());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PublicRegistrationDto getRegistration(Long registrationId) {
         Registration registration = getRegistrationInternal(registrationId);
 
@@ -97,6 +123,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PublicRegistrationDto> getRegistrations(Long eventId, Pageable pageable) {
         List<Registration> registrations = registrationRepository.findAllByEventId(eventId, pageable);
 
@@ -106,6 +133,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         return registrationMapper.toPublicRegistrationDto(registrations);
     }
 
+    @Override
     @Transactional
     public PublicRegistrationStatusDto updateRegistrationStatus(UpdateStatusDto updateStatusDto) {
         RegistrationStatus status = RegistrationStatus.parseStatus(updateStatusDto.getStatus());
@@ -128,6 +156,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         return registrationMapper.toStatusRegistrationDtoWithoutReason(registrationToUpdateStatus);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<PublicRegistrationStatusDto> getRegistrationsWithStatusesAndEventId(Long eventId, List<String> statuses) {
         List<RegistrationStatus> statusesFromRequest = statuses.stream()
@@ -148,6 +177,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Map<String, Long> countRegistrationsByStatus(Long eventId) {
         List<Object[]> response = registrationRepository.getListByEventIdAndGroupByRegistrationStatus(eventId);
@@ -176,5 +206,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         return registrationRepository.findById(registrationId).orElseThrow(
                 () -> new EntityNotFoundException(
                         String.format("Registration with id=%d not found.", registrationId)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getStatusOfRegistration(Long eventId, Long userId) {
+        Registration registration = registrationRepository.findByEventIdAndUserId(eventId, userId).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Registration from user id=%d to event id=%d not found.", userId, eventId)));
+
+        return registration.getRegistrationStatus();
     }
 }
