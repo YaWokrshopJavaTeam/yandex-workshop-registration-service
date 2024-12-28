@@ -18,7 +18,7 @@ public interface RegistrationService {
 
     List<PublicRegistrationDto> getRegistrations(Long eventId, Pageable pageable);
 
-    PublicRegistrationStatusDto updateRegistrationStatus(UpdateStatusDto updateStatusDto);
+    PublicRegistrationStatusDto updateRegistrationStatus(Long requesterId, UpdateStatusDto updateStatusDto);
 
     List<PublicRegistrationStatusDto> getRegistrationsWithStatusesAndEventId(Long eventId, List<String> statuses);
 

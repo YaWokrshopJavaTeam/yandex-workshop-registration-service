@@ -1,5 +1,7 @@
 package ru.practicum.workshop.registrationservice;
 
+import feign.FeignException;
+import feign.Request;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,9 @@ import org.mockito.exceptions.misusing.PotentialStubbingProblem;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.workshop.registrationservice.client.EventClient;
+import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
+import ru.practicum.workshop.registrationservice.client.dto.PublicOrgTeamMemberDto;
 import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
 import ru.practicum.workshop.registrationservice.mapping.RegistrationMapper;
@@ -46,6 +51,9 @@ public class RegistrationServiceImplUnitTest {
     @Mock
     private UserClient userClient;
 
+    @Mock
+    private EventClient eventClient;
+
     @InjectMocks
     private RegistrationServiceImpl registrationService;
 
@@ -69,13 +77,50 @@ public class RegistrationServiceImplUnitTest {
                 });
 
         Long userId = 1L;
-
         when(userClient.autoCreateUser(any(NewUserDto.class)))
                 .thenReturn(userId);
+
+        EventResponse eventResponse = new EventResponse(
+                1L,
+                "Event",
+                "Description",
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                "Location",
+                2L,
+                null);
+        when(eventClient.getEvent(any(Long.class))).thenReturn(eventResponse);
 
         AuthRegistrationDto actualAuthRegistrationDto = registrationService.createRegistration(newRegistrationDto);
 
         assertThat(actualAuthRegistrationDto.getId(), equalTo(expectedAuthRegistrationDto.getId()));
+    }
+
+    @Test
+    public void createRegistration_whenEventNotExists_thenThrowException() {
+        NewRegistrationDto newRegistrationDto = NewRegistrationDto.builder()
+                .name("Yury")
+                .email("yury@yandex.ru")
+                .phone("+79991234567")
+                .eventId(1L).build();
+
+        EventResponse eventResponse = new EventResponse(
+                1L,
+                "Event",
+                "Description",
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                "Location",
+                2L,
+                null);
+        when(eventClient.getEvent(any(Long.class)))
+                .thenThrow(new FeignException.NotFound(
+                        null,
+                        Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, null, null),
+                        null,
+                        new HashMap<>()));
+
+        assertThrows(EntityNotFoundException.class, () -> registrationService.createRegistration(newRegistrationDto));
     }
 
     // Method "updateRegistrationData" tests.
@@ -364,11 +409,12 @@ public class RegistrationServiceImplUnitTest {
 
     @Test
     void updateStatus_shouldThrowExceptionForInvalidStatus() {
+        Long requesterId = 777L;
         UpdateStatusDto invalidRequest = new UpdateStatusDto();
         invalidRequest.setStatus("INVALID_STATUS");
 
         Exception exception = assertThrows(ValidationException.class, () ->
-                registrationService.updateRegistrationStatus(invalidRequest)
+                registrationService.updateRegistrationStatus(requesterId, invalidRequest)
         );
 
         assertEquals("Unknown status: INVALID_STATUS", exception.getMessage());
@@ -376,6 +422,7 @@ public class RegistrationServiceImplUnitTest {
 
     @Test
     void updateStatus_shouldThrowExceptionForNonExistingRegistration() {
+        Long requesterId = 777L;
         Long registrationId = 999L;
         UpdateStatusDto request = new UpdateStatusDto();
         request.setStatus("APPROVED");
@@ -384,12 +431,15 @@ public class RegistrationServiceImplUnitTest {
 
 
         assertThrows(PotentialStubbingProblem.class, () ->
-                registrationService.updateRegistrationStatus(request)
+                registrationService.updateRegistrationStatus(requesterId, request)
         );
     }
 
     @Test
-    void updateStatus_shouldUpdateStatusSuccessfully() {
+    void updateStatus_whenRequesterIsEventOwner_shouldUpdateStatusSuccessfully() {
+        Long requesterId = 777L;
+        Long eventId = 100L;
+
         UpdateStatusDto request = new UpdateStatusDto();
         request.setStatus("APPROVED");
         request.setId(1L);
@@ -397,11 +447,49 @@ public class RegistrationServiceImplUnitTest {
         Registration registration = new Registration();
         registration.setId(1L);
         registration.setRegistrationStatus("PENDING");
+        registration.setEventId(eventId);
 
         Mockito.when(registrationRepository.findById(1L))
                 .thenReturn(Optional.of(registration));
 
-        registrationService.updateRegistrationStatus(request);
+        EventResponse eventResponse = new EventResponse();
+        eventResponse.setOwnerId(requesterId);
+        Mockito.when(eventClient.getEvent(eventId)).thenReturn(eventResponse);
+
+        registrationService.updateRegistrationStatus(requesterId, request);
+
+        assertEquals("APPROVED", registration.getRegistrationStatus());
+        Mockito.verify(registrationRepository).save(registration);
+    }
+
+    @Test
+    void updateStatus_whenRequesterIsEventManager_shouldUpdateStatusSuccessfully() {
+        Long requesterId = 777L;
+        Long eventId = 100L;
+
+        UpdateStatusDto request = new UpdateStatusDto();
+        request.setStatus("APPROVED");
+        request.setId(1L);
+
+        Registration registration = new Registration();
+        registration.setId(1L);
+        registration.setRegistrationStatus("PENDING");
+        registration.setEventId(eventId);
+
+        Mockito.when(registrationRepository.findById(1L))
+                .thenReturn(Optional.of(registration));
+
+        EventResponse eventResponse = new EventResponse();
+        eventResponse.setId(eventId);
+        eventResponse.setOwnerId(requesterId + 1);
+        Mockito.when(eventClient.getEvent(eventId)).thenReturn(eventResponse);
+
+        PublicOrgTeamMemberDto publicOrgTeamMemberDto = new PublicOrgTeamMemberDto();
+        publicOrgTeamMemberDto.setUserId(requesterId);
+        publicOrgTeamMemberDto.setRole(PublicOrgTeamMemberDto.Role.MANAGER);
+        Mockito.when(eventClient.getEventTeamMembers(eventId)).thenReturn(List.of(publicOrgTeamMemberDto));
+
+        registrationService.updateRegistrationStatus(requesterId, request);
 
         assertEquals("APPROVED", registration.getRegistrationStatus());
         Mockito.verify(registrationRepository).save(registration);

@@ -58,9 +58,10 @@ public class RegistrationController {
     }
 
     @PatchMapping("/status")
-    public PublicRegistrationStatusDto updateRegistrationStatus(@RequestBody @Valid UpdateStatusDto updateStatusDto) {
+    public PublicRegistrationStatusDto updateRegistrationStatus(@RequestHeader(name = "X-User-Id") Long requesterId,
+                                                                @RequestBody @Valid UpdateStatusDto updateStatusDto) {
         log.info("Request: update registration status {}", updateStatusDto);
-        return registrationService.updateRegistrationStatus(updateStatusDto);
+        return registrationService.updateRegistrationStatus(requesterId, updateStatusDto);
     }
 
     @GetMapping("/status/{eventId}")
@@ -78,7 +79,7 @@ public class RegistrationController {
 
     @GetMapping("/internal/status-of-registration/{eventId}")
     public String getStatusOfRegistration(@PathVariable @Positive Long eventId,
-                                                        @RequestHeader("X-Review-User-Id") Long userId) {
+                                          @RequestHeader("X-Review-User-Id") Long userId) {
         return registrationService.getStatusOfRegistration(eventId, userId);
     }
 }
