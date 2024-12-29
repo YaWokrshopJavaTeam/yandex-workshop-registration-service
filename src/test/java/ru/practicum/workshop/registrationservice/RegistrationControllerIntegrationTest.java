@@ -597,14 +597,16 @@ public class RegistrationControllerIntegrationTest {
 
     @Test
     void testUpdateRegistrationStatus_Success() throws Exception {
+        Long requesterId = 777L;
         UpdateStatusDto updateStatusDto = new UpdateStatusDto(1L, "APPROVED", "");
         PublicRegistrationStatusDto responseDto = new PublicRegistrationStatusDto("name", "email",
                 "+79991234560",1L, "APPROVED",
                 LocalDateTime.of(2024, 11, 27, 8, 0), "");
 
-        when(registrationService.updateRegistrationStatus(updateStatusDto)).thenReturn(responseDto);
+        when(registrationService.updateRegistrationStatus(requesterId, updateStatusDto)).thenReturn(responseDto);
 
         mockMvc.perform(patch("/registrations/status")
+                        .header("X-User-Id", requesterId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateStatusDto)))
                 .andExpect(status().isOk())
@@ -614,11 +616,23 @@ public class RegistrationControllerIntegrationTest {
 
     @Test
     void testUpdateRegistrationStatus_InvalidInput() throws Exception {
+        Long requesterId = 777L;
         UpdateStatusDto invalidDto = new UpdateStatusDto(null, "", ""); // Invalid data
 
         mockMvc.perform(patch("/registrations/status")
+                        .header("X-User-Id", requesterId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateRegistrationStatus_NoRequesterId() throws Exception {
+        UpdateStatusDto updateStatusDto = new UpdateStatusDto(1L, "APPROVED", "");
+
+        mockMvc.perform(patch("/registrations/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateStatusDto)))
                 .andExpect(status().isBadRequest());
     }
 

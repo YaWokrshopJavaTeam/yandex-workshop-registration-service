@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,6 +24,16 @@ public class MainExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiError handleAuthenticationException(AuthenticationException exception) {
+        ApiError apiError = new ApiError(exception.getClass().getSimpleName(), exception.getMessage());
+
+        log.info("Exception handled: {}", apiError);
+
+        return apiError;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictException(ConflictException exception) {
         ApiError apiError = new ApiError(exception.getClass().getSimpleName(), exception.getMessage());
 
         log.info("Exception handled: {}", apiError);
@@ -100,6 +111,16 @@ public class MainExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleMethodArgumentValidationException(ValidationException exception) {
+        ApiError apiError = new ApiError(exception.getClass().getSimpleName(), exception.getMessage());
+
+        log.info("Exception handled: {}", apiError);
+
+        return apiError;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingRequestHeaderException(MissingRequestHeaderException exception) {
         ApiError apiError = new ApiError(exception.getClass().getSimpleName(), exception.getMessage());
 
         log.info("Exception handled: {}", apiError);

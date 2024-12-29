@@ -1,5 +1,6 @@
 package ru.practicum.workshop.registrationservice.service;
 
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.workshop.registrationservice.client.EventClient;
 import ru.practicum.workshop.registrationservice.client.UserClient;
 import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
+import ru.practicum.workshop.registrationservice.client.dto.PublicOrgTeamMemberDto;
 import ru.practicum.workshop.registrationservice.client.dto.UpdateUserFromRegistrationDto;
 import ru.practicum.workshop.registrationservice.dto.*;
 import ru.practicum.workshop.registrationservice.exception.AuthenticationException;
+import ru.practicum.workshop.registrationservice.exception.ConflictException;
 import ru.practicum.workshop.registrationservice.mapping.RegistrationMapper;
 import ru.practicum.workshop.registrationservice.model.Registration;
 import ru.practicum.workshop.registrationservice.model.RegistrationStatus;
@@ -40,6 +43,13 @@ public class RegistrationServiceImpl implements RegistrationService {
     public AuthRegistrationDto createRegistration(NewRegistrationDto newRegistrationDto) {
         Registration newRegistration = registrationMapper.toRegistration(newRegistrationDto, getRandomPassword(),
                 RegistrationStatus.PENDING.toString(), LocalDateTime.now());
+
+        try {
+            EventResponse eventResponse = eventClient.getEvent(newRegistrationDto.getEventId());
+        } catch (FeignException.NotFound e) {
+            throw new EntityNotFoundException(
+                    String.format("Event (id=%d) doesn't exist.", newRegistrationDto.getEventId()));
+        }
 
         NewUserDto newUserDto = new NewUserDto("autoUser", newRegistration.getEmail(), "autoPassword",
                 "Auto registration from registration service.");
@@ -135,25 +145,51 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional
-    public PublicRegistrationStatusDto updateRegistrationStatus(UpdateStatusDto updateStatusDto) {
+    public PublicRegistrationStatusDto updateRegistrationStatus(Long requesterId, UpdateStatusDto updateStatusDto) {
         RegistrationStatus status = RegistrationStatus.parseStatus(updateStatusDto.getStatus());
 
         Registration registrationToUpdateStatus = getRegistrationInternal(updateStatusDto.getId());
-        registrationToUpdateStatus.setRegistrationStatus(status.toString());
 
-        if (updateStatusDto.getStatus().equals(RegistrationStatus.REJECTED.toString())) {
-            if (updateStatusDto.getReason() == null) {
-                throw new ValidationException("Reason not be null with status REJECTED");
-            }
-            return registrationMapper.toStatusRegistrationDtoWithReason(registrationToUpdateStatus,
-                    updateStatusDto.getReason());
+        if (!RegistrationStatus.isTransitionValid(
+                RegistrationStatus.parseStatus(registrationToUpdateStatus.getRegistrationStatus()),
+                status)) {
+            throw new ConflictException(String.format("Registration (id=%d) with status=%s can't be transitioned to %s.",
+                                                      registrationToUpdateStatus.getId(),
+                                                      registrationToUpdateStatus.getRegistrationStatus(),
+                                                      updateStatusDto.getStatus()));
         }
 
+        EventResponse eventResponse;
+        try {
+            eventResponse = eventClient.getEvent(registrationToUpdateStatus.getEventId());
+        } catch (FeignException.NotFound e) {
+            throw new EntityNotFoundException(String.format("Event (id=%d) doesn't exist.",
+                                                             registrationToUpdateStatus.getEventId()));
+        }
+
+        if (!eventResponse.getOwnerId().equals(requesterId)) {
+            List<PublicOrgTeamMemberDto> eventTeamMembers = eventClient.getEventTeamMembers(eventResponse.getId());
+            eventTeamMembers.stream()
+                .filter(member -> member.getUserId().equals(requesterId) && member.getRole().equals(PublicOrgTeamMemberDto.Role.MANAGER))
+                .findFirst().orElseThrow(() -> new AuthenticationException(
+                        String.format("Requester (id=%d) can't modify status of event (id=%d).",
+                                      requesterId,
+                                      eventResponse.getId())));
+        }
+
+        if (updateStatusDto.getStatus().equals(RegistrationStatus.REJECTED.toString())
+                && updateStatusDto.getReason() == null) {
+            throw new ValidationException("Reason can't be null with status REJECTED");
+        }
+
+        registrationToUpdateStatus.setRegistrationStatus(status.toString());
         registrationRepository.save(registrationToUpdateStatus);
 
         log.info("update registration status id={}", updateStatusDto.getId());
 
-        return registrationMapper.toStatusRegistrationDtoWithoutReason(registrationToUpdateStatus);
+        PublicRegistrationStatusDto publicRegistrationStatusDto =
+                registrationMapper.toStatusRegistrationDtoWithReason(registrationToUpdateStatus, updateStatusDto.getReason());
+        return publicRegistrationStatusDto;
     }
 
     @Override
