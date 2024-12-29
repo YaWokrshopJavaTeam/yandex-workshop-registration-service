@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.workshop.registrationservice.client.EventClient;
+import ru.practicum.workshop.registrationservice.client.dto.EventRegistrationStatus;
 import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
 import ru.practicum.workshop.registrationservice.client.dto.PublicOrgTeamMemberDto;
 import ru.practicum.workshop.registrationservice.dto.*;
@@ -88,6 +89,9 @@ public class RegistrationServiceImplUnitTest {
                 LocalDateTime.now().plusDays(2),
                 "Location",
                 2L,
+                null,
+                EventRegistrationStatus.OPEN,
+                false,
                 null);
         when(eventClient.getEvent(any(Long.class))).thenReturn(eventResponse);
 
@@ -112,6 +116,9 @@ public class RegistrationServiceImplUnitTest {
                 LocalDateTime.now().plusDays(2),
                 "Location",
                 2L,
+                null,
+                EventRegistrationStatus.OPEN,
+                false,
                 null);
         when(eventClient.getEvent(any(Long.class)))
                 .thenThrow(new FeignException.NotFound(
@@ -454,6 +461,8 @@ public class RegistrationServiceImplUnitTest {
 
         EventResponse eventResponse = new EventResponse();
         eventResponse.setOwnerId(requesterId);
+        eventResponse.setRegistrationStatus(EventRegistrationStatus.OPEN);
+        eventResponse.setLimited(false);
         Mockito.when(eventClient.getEvent(eventId)).thenReturn(eventResponse);
 
         registrationService.updateRegistrationStatus(requesterId, request);
@@ -482,6 +491,8 @@ public class RegistrationServiceImplUnitTest {
         EventResponse eventResponse = new EventResponse();
         eventResponse.setId(eventId);
         eventResponse.setOwnerId(requesterId + 1);
+        eventResponse.setRegistrationStatus(EventRegistrationStatus.OPEN);
+        eventResponse.setLimited(false);
         Mockito.when(eventClient.getEvent(eventId)).thenReturn(eventResponse);
 
         PublicOrgTeamMemberDto publicOrgTeamMemberDto = new PublicOrgTeamMemberDto();

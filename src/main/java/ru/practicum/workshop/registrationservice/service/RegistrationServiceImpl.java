@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.workshop.registrationservice.client.EventClient;
 import ru.practicum.workshop.registrationservice.client.UserClient;
+import ru.practicum.workshop.registrationservice.client.dto.EventRegistrationStatus;
 import ru.practicum.workshop.registrationservice.client.dto.EventResponse;
 import ru.practicum.workshop.registrationservice.client.dto.PublicOrgTeamMemberDto;
 import ru.practicum.workshop.registrationservice.client.dto.UpdateUserFromRegistrationDto;
@@ -23,10 +24,7 @@ import ru.practicum.workshop.registrationservice.repository.RegistrationReposito
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +44,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         try {
             EventResponse eventResponse = eventClient.getEvent(newRegistrationDto.getEventId());
+
+            if (!eventResponse.getRegistrationStatus().equals(EventRegistrationStatus.OPEN)) {
+                throw new ConflictException(
+                        String.format("Can't create registration on not opened event (id=%d)", eventResponse.getId()));
+            }
+
         } catch (FeignException.NotFound e) {
             throw new EntityNotFoundException(
                     String.format("Event (id=%d) doesn't exist.", newRegistrationDto.getEventId()));
@@ -177,6 +181,20 @@ public class RegistrationServiceImpl implements RegistrationService {
                                       eventResponse.getId())));
         }
 
+        if (updateStatusDto.getStatus().equals(RegistrationStatus.APPROVED.toString())) {
+            if (!eventResponse.getRegistrationStatus().equals(EventRegistrationStatus.OPEN)) {
+                throw new ConflictException(
+                        String.format("Can't create registration on not opened event (id=%d)", eventResponse.getId()));
+            }
+
+            if (eventResponse.isLimited() && eventResponse.getParticipantLimit() <
+                    registrationRepository.countByEventIdAndRegistrationStatusIn(
+                            eventResponse.getId(),
+                            Set.of(RegistrationStatus.APPROVED.toString(), RegistrationStatus.WAITING.toString()))) {
+                updateStatusDto.setStatus(RegistrationStatus.WAITING.toString());
+            }
+        }
+
         if (updateStatusDto.getStatus().equals(RegistrationStatus.REJECTED.toString())
                 && updateStatusDto.getReason() == null) {
             throw new ValidationException("Reason can't be null with status REJECTED");
@@ -187,9 +205,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         log.info("update registration status id={}", updateStatusDto.getId());
 
-        PublicRegistrationStatusDto publicRegistrationStatusDto =
-                registrationMapper.toStatusRegistrationDtoWithReason(registrationToUpdateStatus, updateStatusDto.getReason());
-        return publicRegistrationStatusDto;
+        return registrationMapper.toStatusRegistrationDtoWithReason(registrationToUpdateStatus, updateStatusDto.getReason());
     }
 
     @Override

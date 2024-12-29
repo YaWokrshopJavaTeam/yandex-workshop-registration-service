@@ -1,6 +1,5 @@
 package ru.practicum.workshop.registrationservice.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,8 @@ public class EventResponse {
     private LocalDateTime endDateTime;
     private String location;
     private Long ownerId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime createdDateTime;
+    private EventRegistrationStatus registrationStatus;
+    private boolean isLimited;
+    private Integer participantLimit;
 }
