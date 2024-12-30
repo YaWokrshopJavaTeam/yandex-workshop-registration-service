@@ -184,13 +184,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (updateStatusDto.getStatus().equals(RegistrationStatus.APPROVED.toString())) {
             if (!eventResponse.getRegistrationStatus().equals(EventRegistrationStatus.OPEN)) {
                 throw new ConflictException(
-                        String.format("Can't create registration on not opened event (id=%d)", eventResponse.getId()));
+                        String.format("Can't update registration (id=%d) on not opened event (id=%d)",
+                                registrationToUpdateStatus.getId(), eventResponse.getId()));
             }
 
-            if (eventResponse.isLimited() && eventResponse.getParticipantLimit() <
+            if (eventResponse.isLimited() && eventResponse.getParticipantLimit() <=
                     registrationRepository.countByEventIdAndRegistrationStatusIn(
                             eventResponse.getId(),
-                            Set.of(RegistrationStatus.APPROVED.toString(), RegistrationStatus.WAITING.toString()))) {
+                            Set.of(RegistrationStatus.APPROVED.toString()))) {
                 updateStatusDto.setStatus(RegistrationStatus.WAITING.toString());
             }
         }
